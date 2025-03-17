@@ -26,12 +26,11 @@ jobs:
     #  uses: actions/checkout@v4
 
     - name: Get Latest Release URL and Download it
-        id: get_latest_url
-        run: |
-          LATEST_URL=$(curl -s https://api.github.com/repos/abinit/abinit/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
-          echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
-          curl -L -o latest-release.tar.gz "$LATEST_URL"
-          tar -zxvf latest-release.tar.gz 
+      run: |
+        LATEST_URL=$(curl -s https://api.github.com/repos/abinit/abinit/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
+        echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+        curl -L -o latest-release.tar.gz "$LATEST_URL"
+        tar -zxvf latest-release.tar.gz 
 
     - name: Install dependencies
       run: |
