@@ -13,7 +13,7 @@ jobs:
       matrix:
         config:
           - os: ubuntu-latest
-            python: "3.9"
+            python: "3.12"
 
     runs-on: ${{ matrix.config.os }}
 
@@ -28,9 +28,9 @@ jobs:
     - name: Get Latest Release URL and Download it
       run: |
         LATEST_URL=$(curl -s https://api.github.com/repos/abinit/abinit/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
-        echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
-        curl -L -o latest-release.tar.gz "$LATEST_URL"
-        tar -zxvf latest-release.tar.gz 
+        #echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+        curl -L -o latest-release.tar.gz
+        tar -zxvf latest-release.tar.gz -C latest-release
 
     - name: Install dependencies
       run: |
@@ -47,8 +47,10 @@ jobs:
         sudo apt install -y libhdf5-dev libnetcdf-dev libnetcdff-dev libpnetcdf-dev libxc-dev
 
     - name: Run makemake
-      run: ./autogen.sh
-      #run: ./config/scripts/makemake
+      run: |
+        cd latest-release
+        ./autogen.sh
+        #run: ./config/scripts/makemake
 
     - name: Print Env
       run: |
@@ -59,7 +61,9 @@ jobs:
         echo "nf-config --all\n:" `nf-config --all`
 
     - name: Run configure
-      run: ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O2 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
+      run: |
+        cd latest-release
+        ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O2 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
 
     - name: Upload config.log
       uses: actions/upload-artifact@v4
@@ -68,7 +72,8 @@ jobs:
         path: config.log
 
     - name: Run make
-      run: make -j | tee make.log
+      run: |
+        make -j | tee make.log
 
     - name: Run tests
       run: |
