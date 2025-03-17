@@ -46,8 +46,7 @@ jobs:
         curl -L -o $OUTPUT_FILE $LATEST_URL
 
         echo "Download complete: $OUTPUT_FILE"
-        tar -zxvf latest-release.tar.gz -C latest-release
-
+        tar -zxvf latest-release.tar.gz
         mv abinit-abinit* latest-release
 
     - name: Install dependencies
