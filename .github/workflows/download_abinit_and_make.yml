@@ -28,8 +28,8 @@ jobs:
     - name: Get Latest Release URL and Download it
       run: |
         LATEST_URL=$(curl -s https://api.github.com/repos/abinit/abinit/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
-        #echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
-        curl -L -o latest-release.tar.gz
+        echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
+        curl -L -o latest-release.tar.gz "$LATEST_URL"
         tar -zxvf latest-release.tar.gz -C latest-release
 
     - name: Install dependencies
