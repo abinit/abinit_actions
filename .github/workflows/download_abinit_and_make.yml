@@ -27,10 +27,28 @@ jobs:
 
     - name: Get Latest Release URL and Download it
       run: |
-        LATEST_URL=$(curl -s https://api.github.com/repos/abinit/abinit/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
-        echo "LATEST_URL=$LATEST_URL" >> $GITHUB_ENV
-        curl -L -o latest-release.tar.gz "$LATEST_URL"
+        # Repository details (change as needed)
+        OWNER="abinit"
+        REPO="abinit"
+
+        # Fetch the latest release URL using GitHub API
+        LATEST_URL=$(curl -s https://api.github.com/repos/$OWNER/$REPO/releases/latest | grep "tarball_url" | cut -d '"' -f 4)
+
+        # Check if URL was retrieved successfully
+        if [ -z "$LATEST_URL" ]; then
+            echo "Error: Could not fetch the latest release URL. Check the repository name."
+            exit 1
+        fi
+
+        # Download the latest release
+        OUTPUT_FILE="latest-release.tar.gz"
+        echo "Downloading latest release from: $LATEST_URL"
+        curl -L -o $OUTPUT_FILE $LATEST_URL
+
+        echo "Download complete: $OUTPUT_FILE"
         tar -zxvf latest-release.tar.gz -C latest-release
+
+        mv abinit-abinit* latest-release
 
     - name: Install dependencies
       run: |
@@ -69,14 +87,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: config.log
-        path: config.log
+        path: latest-release/config.log
 
     - name: Run make
       run: |
+        cd latest-release
         make -j | tee make.log
 
     - name: Run tests
       run: |
+        cd latest-release
         cd tests
         ./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
 
@@ -84,4 +104,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: runtests.log
-        path: tests/runtests.log
+        path: latest-release/tests/runtests.log
