@@ -63,11 +63,19 @@ jobs:
         sudo apt install -y libfftw3-dev
         sudo apt install -y libhdf5-dev libnetcdf-dev libnetcdff-dev libpnetcdf-dev libxc-dev
 
-    - name: Run makemake
+    - name: Run configure
       run: |
         cd latest-release
+        # FIXME: This should not happen as users are not supposed to run autogen.sh
         ./autogen.sh
         #run: ./config/scripts/makemake
+
+        first_line=$(head -n 1 .current_version)  # Get the first line
+        echo "$first_line"
+
+        if [[ "$first_line" == "UNKNOWN" ]]; then
+          exit 1  # Stop the script if the first line is "UNKNOWN"
+        fi
 
     - name: Print Env
       run: |
@@ -80,7 +88,7 @@ jobs:
     - name: Run configure
       run: |
         cd latest-release
-        ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O2 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
+        ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
 
     - name: Upload config.log
       uses: actions/upload-artifact@v4
@@ -95,9 +103,13 @@ jobs:
 
     - name: Run tests
       run: |
-        cd latest-release
-        cd tests
+        cd latest-release/tests
         ./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
+        # Check if the exit status of the previous command is non-zero
+        if [[ $? -ne 0 ]]; then
+          echo "runtests.py failed. Exiting..."
+          exit 1
+        fi
 
     - name: Upload runtests.log
       uses: actions/upload-artifact@v4
