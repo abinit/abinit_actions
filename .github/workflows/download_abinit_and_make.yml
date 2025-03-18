@@ -53,7 +53,7 @@ jobs:
       run: |
         sudo apt update
         # This tools are needed to run makemake
-        #sudo apt install -y autoconf automake m4
+        sudo apt install -y autoconf automake m4
         # 1 # compiler
         sudo apt install -y build-essential gfortran
         # 2 # MPI libraries - choice for Open MPI
