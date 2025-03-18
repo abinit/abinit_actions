@@ -104,10 +104,11 @@ jobs:
 
     - name: Run tests
       run: |
-        cd latest-release/tests
+        cd latest-release/
         export PATH=${PWD}/src/98_main/:$PATH
         echo "abinit version:", `abinit --version`
         abinit --build
+        cd tests
         #./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
         ./runtests.py v1 v2 -j8 | tee runtests.log
         # Check if the exit status of the previous command is non-zero
