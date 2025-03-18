@@ -1,6 +1,7 @@
 # abinit_actions
 
-This repository uses GitHub Actions to test an external repository periodically and display the test results as a badge.
+This repository uses GitHub Actions to test an external repository periodically 
+and display the test results as a badge.
 
 ## How It Works
 
@@ -15,7 +16,7 @@ This repository uses GitHub Actions to test an external repository periodically 
 2. Modify the `python-version` in the workflow if needed.
 3. Commit and push the changes to trigger the first run
 
-![Test Status](https://github.com/abinit/abinit_actions/actions/workflows/download_abinit_and_make/badge.svg)
+![configure and compilation](https://github.com/abinit/abinit_actions/actions/workflows/download_abinit_and_make/badge.svg)
 
 
 
