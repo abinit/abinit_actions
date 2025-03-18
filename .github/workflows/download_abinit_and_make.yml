@@ -66,9 +66,8 @@ jobs:
     - name: Run makemake
       run: |
         cd latest-release
-        # FIXME: This should not happen as users are not supposed to run autogen.sh
-        ./autogen.sh
-        #run: ./config/scripts/makemake
+        # FIXME: This should not happen as users are not supposed to run makemake or autogen.sh
+        ./config/scripts/makemake
 
         first_line=$(head -n 1 .current_version)  # Get the first line
         echo "$first_line"
@@ -88,8 +87,7 @@ jobs:
     - name: Run configure
       run: |
         cd latest-release
-        #./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
-        ./configure FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="no"
+        ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
 
     - name: Upload config.log
       uses: actions/upload-artifact@v4
@@ -109,10 +107,10 @@ jobs:
         echo "abinit version:", `abinit --version`
         abinit --build
         cd tests
-        #./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
-        ./runtests.py v1 v2 -j8 | tee runtests.log
+        ./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
         # Check if the exit status of the previous command is non-zero
-        if [[ $? -ne 0 ]]; then
+        # NB: Cannot use $? due to tee. 
+        if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
           echo "runtests.py failed. Exiting..."
           exit 1
         fi
