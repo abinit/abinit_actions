@@ -52,7 +52,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y autoconf automake m4
+        # This tools are needed to run makemake
+        #sudo apt install -y autoconf automake m4
         # 1 # compiler
         sudo apt install -y build-essential gfortran
         # 2 # MPI libraries - choice for Open MPI
@@ -99,6 +100,11 @@ jobs:
       run: |
         cd latest-release
         make -j | tee make.log
+        # NB: Cannot use $? due to tee. 
+        if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+          echo "make failed. Exiting..."
+          exit 1
+        fi
 
     - name: Run tests
       run: |
