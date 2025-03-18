@@ -63,7 +63,7 @@ jobs:
         sudo apt install -y libfftw3-dev
         sudo apt install -y libhdf5-dev libnetcdf-dev libnetcdff-dev libpnetcdf-dev libxc-dev
 
-    - name: Run configure
+    - name: Run makemake
       run: |
         cd latest-release
         # FIXME: This should not happen as users are not supposed to run autogen.sh
@@ -88,7 +88,8 @@ jobs:
     - name: Run configure
       run: |
         cd latest-release
-        ./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
+        #./configure FC=mpifort CC=mpicc CXX=mpicxx FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="yes"
+        ./configure FCFLAGS="-g -O0 -ffree-line-length-none -fallow-argument-mismatch" --with-mpi="no"
 
     - name: Upload config.log
       uses: actions/upload-artifact@v4
@@ -104,7 +105,11 @@ jobs:
     - name: Run tests
       run: |
         cd latest-release/tests
-        ./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
+        export PATH=${PWD}/src/98_main/:$PATH
+        echo "abinit version:", `abinit --version`
+        abinit --build
+        #./runtests.py v1 v2 -j8 --force-mpirun | tee runtests.log
+        ./runtests.py v1 v2 -j8 | tee runtests.log
         # Check if the exit status of the previous command is non-zero
         if [[ $? -ne 0 ]]; then
           echo "runtests.py failed. Exiting..."
